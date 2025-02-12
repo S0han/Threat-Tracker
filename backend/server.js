@@ -1,6 +1,9 @@
 const express = require("express");
 const app = express();
 const PORT = 3001;
+const cors = require('cors');
+
+app.use(cors());
 
 app.get('/', (req, res) => {
     res.send("Main Page");
@@ -32,6 +35,7 @@ app.get('/api/threats', async (req, res) => {
 
         const threat_list = data.urls.map(item => (
             {
+                id: item.id,
                 host: item.host,
                 url: item.url,
                 threat_type: item.threat,
@@ -40,13 +44,13 @@ app.get('/api/threats', async (req, res) => {
         ));
 
         const startIndex = (page - 1) * limit;
-        const pag_threat_list = threat_list.slice(startIndex, startIndex + limit);
+        const page_threat_list = threat_list.slice(startIndex, startIndex + limit);
 
         res.json(
             { 
                 page: page, 
                 limit: limit, 
-                threats: pag_threat_list 
+                threats: page_threat_list 
             }
         );
     } catch (error) {

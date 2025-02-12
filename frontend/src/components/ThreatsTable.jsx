@@ -1,23 +1,45 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 export default function ThreatsTable() {
     const [filterThreat, setFilterThreat] = useState('');
     const [sortOrder, setSortOrder] = useState('desc');
+
+    const [realThreats, setRealThreats] = useState([]);
+    const [page, setPage] = useState(1);
+    const [limit, setLimit] = useState(5);
+    const [loading, setLoading] = useState(false);
+    const  [error, setError] = useState('');
     
-    const dummy_threats = [
-        { id: 1, host: "cat.com", url: "https://cat.com", threatType: "catSteal", dateAdded: "2024-02-10" },
-        { id: 2, host: "dog.com", url: "https://dog.com", threatType: "dogAttack", dateAdded: "2024-01-10" }
-    ]
+    useEffect(() => {
+        const fetchThreats = async () => {
+            setLoading(true);
+            try {
+                const res = await fetch(`http://localhost:3001/api/threats?page=${page}&limit=${limit}`);
+                
+                const data = await res.json();
+                if (data.error) {
+                    throw new Error(data.error)
+                }
+
+                setRealThreats(data.threats);
+            } catch (err) {
+                setError(err.message)
+            }
+            setLoading(false);
+        }
+
+        fetchThreats();
+    }, [page, limit]);
     
-    const uniqueThreatTypes = [...new Set(dummy_threats.map((item) => item.threatType))];
+    const uniqueThreatTypes = [...new Set(realThreats.map((item) => item.threat_type))];
     const filteredThreats = filterThreat 
-        ? dummy_threats.filter((item) => (item.threatType === filterThreat))
-        : dummy_threats;
+        ? realThreats.filter((item) => (item.threat_type === filterThreat))
+        : realThreats;
 
     const sortedThreats = [...filteredThreats].sort((a, b) => {
         return sortOrder === 'desc'
-        ? new Date(b.dateAdded) - new Date(a.dateAdded)
-        : new Date(a.dateAdded) - new Date(b.dateAdded)
+        ? new Date(b.date_added) - new Date(a.date_added)
+        : new Date(a.date_added) - new Date(b.date_added)
     });
     
     const handleSortToggle = () => {
@@ -56,8 +78,8 @@ export default function ThreatsTable() {
                             <tr key={item.id}>
                                 <td>{item.host}</td>
                                 <td>{item.url}</td>
-                                <td>{item.threatType}</td>
-                                <td>{item.dateAdded}</td>
+                                <td>{item.threat_type}</td>
+                                <td>{item.date_added}</td>
                             </tr>
                         ))
                     }
