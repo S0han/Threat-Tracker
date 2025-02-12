@@ -14,11 +14,11 @@ export default function ThreatsTable() {
     const { realThreats, loading, error } = getBackendData(page, limit);
 
     if (loading) {
-        return <p>Loading...</p>;
+        return <p className="text-center text-xl">Loading...</p>;
     }
 
     if (error) {
-        return <p>Error: {error}</p>;
+        return <p className="text-center text-xl text-red-500">Error: {error}</p>;
     }
     
     const uniqueThreatTypes = [...new Set(realThreats.map((item) => item.threat_type))];
@@ -38,7 +38,6 @@ export default function ThreatsTable() {
 
     return (
         <div>
-            
             <SortFilter 
                 uniqueThreatTypes={uniqueThreatTypes} 
                 setFilterThreat={setFilterThreat}
@@ -47,23 +46,23 @@ export default function ThreatsTable() {
                 sortOrder={sortOrder}
             />
 
-            <table>
+            <table className="min-w-full border border-gray-200">
                 <thead>
-                    <tr>
-                        <th>Host</th>
-                        <th>URL</th>
-                        <th>Threat Type</th>
-                        <th>Date Added</th>
+                    <tr className="bg-gray-100 text-left text-sm font-medium text-gray-600">
+                        <th className="px-6 py-3 min-w-[150px]">Host</th>
+                        <th className="px-6 py-3 min-w-[250px]">URL</th>
+                        <th className="px-6 py-3 min-w-[180px]">Threat Type</th>
+                        <th className="px-6 py-3 min-w-[200px]">Date Added</th>
                     </tr>
                 </thead>
                 <tbody>
                     {
                         sortedThreats.map(item => (
-                            <tr key={item.id}>
-                                <td>{item.host}</td>
-                                <td>{item.url}</td>
-                                <td>{item.threat_type}</td>
-                                <td>{item.date_added}</td>
+                            <tr key={item.id} className="border-t hover:bg-gray-50">
+                                <td className="px-6 py-3">{item.host}</td>
+                                <td className="px-6 py-3">{item.url}</td>
+                                <td className="px-6 py-3">{item.threat_type}</td>
+                                <td className="px-6 py-3">{item.date_added}</td>
                             </tr>
                         ))
                     }
