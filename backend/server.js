@@ -1,4 +1,4 @@
-const express  = require("express");
+const express = require("express");
 const app = express();
 const PORT = 3000;
 
@@ -7,15 +7,45 @@ app.get('/', (req, res) => {
 });
 
 app.get('/api/threats', async (req, res) => {
-    const URL = "https://urlhaus-api.abuse.ch/v1/urls/recent/limit/10/";
+    const URL = "https://urlhaus-api.abuse.ch/v1/urls/recent/limit/10";
+    
     try {
+        const page = parseInt(req.query.page) || 1;
+        if (isNaN(page)) {
+            throw new Error("Invalid page number");
+        };
+        
+        const limit = parseInt(req.query.limit) || 10;
+        if (isNaN(limit)) {
+            throw new Error("Invalid limit value")
+        };
+
         const response = await fetch(URL);
         if (!response.ok) {
             throw new Error(`Repsonse status: ${response.status}`);
-        }
-
+        };
+        
         const data = await response.json();
-        res.json(data);
+        if (data.query_status !== "ok") {
+            throw new Error("External API error")
+        };
+
+        const threat_list = data.urls.map(item => (
+            {
+                host: item.host,
+                url: item.url,
+                threat_type: item.threat,
+                date_added: item.date_added
+            }
+        ));
+
+        res.json(
+            { 
+                page: page, 
+                limit: limit, 
+                threats: threat_list 
+            }
+        );
     } catch (error) {
         console.error(error.message);
         res.status(500).json({ error: "Internal Server Error" });
