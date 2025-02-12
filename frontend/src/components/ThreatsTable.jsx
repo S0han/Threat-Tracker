@@ -30,6 +30,14 @@ export default function ThreatsTable() {
 
         fetchThreats();
     }, [page, limit]);
+
+    if (loading) {
+        return <p>Loading...</p>;
+    }
+
+    if (error) {
+        return <p style={{ color: 'red' }}>Error: {error}</p>;
+    }
     
     const uniqueThreatTypes = [...new Set(realThreats.map((item) => item.threat_type))];
     const filteredThreats = filterThreat 
