@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import Pagination from './Pagination';
 
 export default function ThreatsTable() {
     const [filterThreat, setFilterThreat] = useState('');
@@ -94,16 +95,7 @@ export default function ThreatsTable() {
                 </tbody>
             </table>
 
-            <div>
-                <button disabled={page === 1} onClick={() => setPage(page - 1)}>Previous</button>
-                <span> Page {page} </span>
-                <button 
-                    disabled={realThreats.length < limit}
-                    onClick={() => setPage(page + 1)}
-                >
-                    Next
-                </button>
-            </div>
+            <Pagination page={page} setPage={setPage} realThreats={realThreats} limit={limit} />
         </div>
     );
 }
