@@ -1,9 +1,10 @@
 import React from 'react';
+import ThreatsTable from './components/ThreatsTable';
 
 function App() {
   return (
     <div>
-      <h1>React App</h1>
+      <ThreatsTable />
     </div>
   );
 }
