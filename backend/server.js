@@ -15,7 +15,7 @@ app.get('/api/threats', async (req, res) => {
             throw new Error("Invalid page number");
         };
         
-        const limit = parseInt(req.query.limit) || 10;
+        const limit = parseInt(req.query.limit) || 5;
         if (isNaN(limit)) {
             throw new Error("Invalid limit value")
         };
@@ -39,11 +39,14 @@ app.get('/api/threats', async (req, res) => {
             }
         ));
 
+        const startIndex = (page - 1) * limit;
+        const pag_threat_list = threat_list.slice(startIndex, startIndex + limit);
+
         res.json(
             { 
                 page: page, 
                 limit: limit, 
-                threats: threat_list 
+                threats: pag_threat_list 
             }
         );
     } catch (error) {
