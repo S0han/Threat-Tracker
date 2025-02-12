@@ -8,7 +8,28 @@ export default function ThreatsTable() {
     
     return (
         <div>
-
+            <table>
+                <thead>
+                    <tr>
+                        <th>Host</th>
+                        <th>URL</th>
+                        <th>Threat Type</th>
+                        <th>Date Added</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {
+                        dummy_threats.map(item => (
+                            <tr key={item.id}>
+                                <td>{item.host}</td>
+                                <td>{item.url}</td>
+                                <td>{item.threatType}</td>
+                                <td>{item.dateAdded}</td>
+                            </tr>
+                        ))
+                    }
+                </tbody>
+            </table>
         </div>
     );
 }
