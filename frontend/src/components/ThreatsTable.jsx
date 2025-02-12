@@ -1,43 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Pagination from './Pagination';
+
+import getBackendData from '../functions/GetBackendData';
 
 export default function ThreatsTable() {
     const [filterThreat, setFilterThreat] = useState('');
     const [sortOrder, setSortOrder] = useState('desc');
 
-    const [realThreats, setRealThreats] = useState([]);
     const [page, setPage] = useState(1);
-    const [limit, setLimit] = useState(5);
-    const [loading, setLoading] = useState(false);
-    const  [error, setError] = useState('');
-    
-    useEffect(() => {
-        const fetchThreats = async () => {
-            setLoading(true);
-            try {
-                const res = await fetch(`http://localhost:3001/api/threats?page=${page}&limit=${limit}`);
-                
-                const data = await res.json();
-                if (data.error) {
-                    throw new Error(data.error)
-                }
+    const [limit] = useState(5);
 
-                setRealThreats(data.threats);
-            } catch (err) {
-                setError(err.message)
-            }
-            setLoading(false);
-        }
-
-        fetchThreats();
-    }, [page, limit]);
+    const { realThreats, loading, error } = getBackendData(page, limit);
 
     if (loading) {
         return <p>Loading...</p>;
     }
 
     if (error) {
-        return <p style={{ color: 'red' }}>Error: {error}</p>;
+        return <p>Error: {error}</p>;
     }
     
     const uniqueThreatTypes = [...new Set(realThreats.map((item) => item.threat_type))];
