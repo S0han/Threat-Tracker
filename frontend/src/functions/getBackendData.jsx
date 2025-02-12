@@ -26,5 +26,5 @@ export default function GetBackendData(page, limit) {
         fetchThreats();
     }, [page, limit]);
 
-    return {realThreats, loading, error}
+    return {realThreats, loading, error};
 }
