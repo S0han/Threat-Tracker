@@ -1,20 +1,39 @@
 require('dotenv').config();
-import express from "express";
-import cors from 'cors';
+const express = require("express");
+const cors = require("cors");
+const jwt = require("jsonwebtoken");
+
 
 const app = express();
 const PORT = 3001;
 
 const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) {
-    throw new Error("Unable to load JWT_SECRET from .env file");
+    throw new Error("Unable to load JWT_SECRET from .env file")
 }
 
-
 app.use(cors());
+app.use(express.json());
 
 app.get('/', (req, res) => {
     res.send("Main Page");
+});
+
+app.post("/api/login", (req, res) => {
+    const { username, password } = req.body;
+
+    const mockUser = { id: 1, username: "admin", password:"password123" };
+    if (username !== mockUser.username || password !== mockUser.password) {
+        return res.status(401).json({ error: "Invalid credentials" });
+    }
+
+    const token = jwt.sign(
+        { userId: mockUser.id, username: mockUser.username },
+        process.env.JWT_SECRET,
+        { expiresIn: "1h" }
+    )
+
+    res.json({ token });
 });
 
 app.get('/api/threats', async (req, res) => {
