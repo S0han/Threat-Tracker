@@ -3,14 +3,21 @@ const express = require("express");
 const cors = require("cors");
 const fetch = require('node-fetch');
 const jwt = require("jsonwebtoken");
+const redis = require("redis");
 const authenticateToken = require("./authMiddleware");
 const generateToken = require("./generateToken");
 const { PrismaClient } = require('@prisma/client');
 
-
 const app = express();
 const prisma = new PrismaClient();
 const PORT = 3001;
+
+const redisClient = redis.createClient({
+  host: "localhost",
+  port: 6379,
+  legacyMode: true,
+});
+redisClient.connect().catch(console.error);
 
 const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) {
