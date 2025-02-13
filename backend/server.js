@@ -1,21 +1,11 @@
 const express = require("express");
 const cors = require("cors");
 const fetch = require('node-fetch');
-const redis = require("redis");
 const bcrypt = require('bcrypt');
 const generateToken = require("./generateToken");
-const { PrismaClient } = require('@prisma/client');
 
 const app = express();
-const prisma = new PrismaClient();
 const PORT = 3001;
-
-const redisClient = redis.createClient({
-  host: "localhost",
-  port: 6379,
-  legacyMode: true,
-});
-redisClient.connect().catch(console.error);
 
 app.use(cors());
 app.use(express.json());
