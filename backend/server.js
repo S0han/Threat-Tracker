@@ -2,9 +2,8 @@ require('dotenv').config();
 const express = require("express");
 const cors = require("cors");
 const fetch = require('node-fetch');
-const jwt = require("jsonwebtoken");
 const redis = require("redis");
-const authenticateToken = require("./authMiddleware");
+const bcrypt = require('bcrypt');
 const generateToken = require("./generateToken");
 const { PrismaClient } = require('@prisma/client');
 
@@ -31,13 +30,6 @@ app.get('/', (req, res) => {
     res.send("Main Page");
 });
 
-app.get('/api/protected', authenticateToken, (req, res) => {
-    res.json({ 
-        message: "You accessed a protected route!", 
-        user: req.user 
-    });
-});
-
 app.post('/api/login', async (req, res) => {
     const { username, password } = req.body;
 
@@ -45,7 +37,12 @@ app.post('/api/login', async (req, res) => {
         where: { username },
     });
 
-    if (!user || user.password !== password) {
+    if (!user) {
+        return res.status(401).json({ error: "Invalid credentials" });
+    }
+
+    const passwordMatch = await bcrypt.compare(password, user.password);
+    if (!passwordMatch) {
         return res.status(401).json({ error: "Invalid credentials" });
     }
 
@@ -54,7 +51,6 @@ app.post('/api/login', async (req, res) => {
 
     res.json({ token });
 });
-
 
 app.get('/api/threats', async (req, res) => {
     try {
@@ -79,7 +75,7 @@ app.get('/api/fetch-threats', async (req, res) => {
 
     const formatDate = (dateStr) => {
         const date = new Date(dateStr);
-        return date.toISOString(); // Convert to ISO-8601 format
+        return date.toISOString();
     };
     
     try {
