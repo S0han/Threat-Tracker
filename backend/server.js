@@ -1,4 +1,3 @@
-require('dotenv').config();
 const express = require("express");
 const cors = require("cors");
 const fetch = require('node-fetch');
@@ -17,11 +16,6 @@ const redisClient = redis.createClient({
   legacyMode: true,
 });
 redisClient.connect().catch(console.error);
-
-const JWT_SECRET = process.env.JWT_SECRET;
-if (!JWT_SECRET) {
-    throw new Error("Unable to load JWT_SECRET from .env file")
-}
 
 app.use(cors());
 app.use(express.json());
