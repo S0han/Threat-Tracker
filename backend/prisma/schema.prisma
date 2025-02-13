@@ -11,6 +11,6 @@ model Threat {
   id            Int       @id @default(autoincrement())
   host          String
   url           String
-  threatType    String    @map("threat_type")
-  dateAdded     DateTime  @map("date_added")
+  threat_type    String    @map("threat_type")
+  date_added     DateTime  @map("date_added")
 }
