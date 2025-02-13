@@ -38,18 +38,23 @@ app.get('/api/protected', authenticateToken, (req, res) => {
     });
 });
 
-app.post('/api/login', (req, res) => {
+app.post('/api/login', async (req, res) => {
     const { username, password } = req.body;
 
-    const mockUser = { id: 1, username: "admin", password:"password123" };
-    if (username !== mockUser.username || password !== mockUser.password) {
+    const user = await prisma.user.findUnique({
+        where: { username },
+    });
+
+    if (!user || user.password !== password) {
         return res.status(401).json({ error: "Invalid credentials" });
     }
 
-    const token = generateToken(mockUser);
+    const token = generateToken(user);
+    await redisClient.setEx(`auth-token:${user.id}`, 3600, token);
 
     res.json({ token });
 });
+
 
 app.get('/api/threats', async (req, res) => {
     try {
