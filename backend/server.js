@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require("express");
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
+const authenticateToken = require("./authMiddleware");
 
 
 const app = express();
@@ -19,7 +20,14 @@ app.get('/', (req, res) => {
     res.send("Main Page");
 });
 
-app.post("/api/login", (req, res) => {
+app.get('/api/protected', authenticateToken, (req, res) => {
+    res.json({ 
+        message: "You accessed a protected route!", 
+        user: req.user 
+    });
+});
+
+app.post('/api/login', (req, res) => {
     const { username, password } = req.body;
 
     const mockUser = { id: 1, username: "admin", password:"password123" };
