@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Pagination from './Pagination';
 import SortFilter from './SortFilter';
 
-import getBackendData from '../functions/getBackendData';
+import GetBackendData from '../functions/GetBackendData';
 
 export default function ThreatsTable() {
     const [filterThreat, setFilterThreat] = useState('');
@@ -11,7 +11,7 @@ export default function ThreatsTable() {
     const [page, setPage] = useState(1);
     const [limit] = useState(5);
 
-    const { realThreats, loading, error } = getBackendData(page, limit);
+    const { realThreats, loading, error } = GetBackendData(page, limit);
 
     if (loading) {
         return <p className="text-center text-xl">Loading...</p>;
