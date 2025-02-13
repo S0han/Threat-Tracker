@@ -8,9 +8,9 @@ datasource db {
 }
 
 model Threat {
-  id            Int       @id @default(autoincrement())
-  host          String
-  url           String
-  threat_type    String    @map("threat_type")
-  date_added     DateTime  @map("date_added")
+  id         Int      @id @default(autoincrement())
+  host       String
+  url        String
+  threat_type String
+  date_added DateTime
 }

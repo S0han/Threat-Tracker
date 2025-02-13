@@ -1,11 +1,15 @@
 require('dotenv').config();
 const express = require("express");
 const cors = require("cors");
+const fetch = require('node-fetch');
+const cron = require('node-cron');
 const jwt = require("jsonwebtoken");
 const authenticateToken = require("./authMiddleware");
+const { PrismaClient } = require('@prisma/client');
 
 
 const app = express();
+const prisma = new PrismaClient();
 const PORT = 3001;
 
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -45,19 +49,32 @@ app.post('/api/login', (req, res) => {
 });
 
 app.get('/api/threats', async (req, res) => {
-    const URL = "https://urlhaus-api.abuse.ch/v1/urls/recent/limit/10";
-    
     try {
         const page = parseInt(req.query.page) || 1;
-        if (isNaN(page)) {
-            throw new Error("Invalid page number");
-        };
-        
         const limit = parseInt(req.query.limit) || 5;
-        if (isNaN(limit)) {
-            throw new Error("Invalid limit value")
-        };
 
+        const threats = await prisma.threat.findMany({
+            skip: (page - 1) * limit,
+            take: limit,
+            orderBy: { date_added: 'desc' }
+        });
+
+        res.json({ page, limit, threats });
+    } catch (error) {
+        console.error(error.message);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
+app.get('/api/fetch-threats', async (req, res) => {
+    const URL = "https://urlhaus-api.abuse.ch/v1/urls/recent/limit/10";
+
+    const formatDate = (dateStr) => {
+        const date = new Date(dateStr);
+        return date.toISOString(); // Convert to ISO-8601 format
+    };
+    
+    try {
         const response = await fetch(URL);
         if (!response.ok) {
             throw new Error(`Repsonse status: ${response.status}`);
@@ -70,30 +87,40 @@ app.get('/api/threats', async (req, res) => {
 
         const threat_list = data.urls.map(item => (
             {
-                id: item.id,
                 host: item.host,
                 url: item.url,
                 threat_type: item.threat,
-                date_added: item.date_added
+                date_added: formatDate(item.date_added)
             }
         ));
 
-        const startIndex = (page - 1) * limit;
-        const page_threat_list = threat_list.slice(startIndex, startIndex + limit);
+        await prisma.threat.createMany({
+            data: threat_list,
+            skipDuplicates: true
+        });
 
-        res.json(
-            { 
-                page: page, 
-                limit: limit, 
-                threats: page_threat_list 
-            }
-        );
+        res.json({ 
+            message: "Threats fetched and stored successfully", 
+            count: threat_list.length 
+        });
     } catch (error) {
         console.error(error.message);
         res.status(500).json({ error: "Internal Server Error" });
     }
 });
 
+const fetchThreatsOnce = async () => {
+    const URL = "http://localhost:3001/api/fetch-threats";
+    try {
+        const response = await fetch(URL);
+        const data = await response.json();
+        console.log(data.message);
+    } catch (error) {
+        console.error('Error fetching threats:', error.message);
+    }
+}
+
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
+    fetchThreatsOnce();
 });
