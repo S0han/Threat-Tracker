@@ -1,7 +1,15 @@
-const express = require("express");
+require('dotenv').config();
+import express from "express";
+import cors from 'cors';
+
 const app = express();
 const PORT = 3001;
-const cors = require('cors');
+
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+    throw new Error("Unable to load JWT_SECRET from .env file");
+}
+
 
 app.use(cors());
 
