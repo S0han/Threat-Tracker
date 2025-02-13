@@ -2,9 +2,9 @@ require('dotenv').config();
 const express = require("express");
 const cors = require("cors");
 const fetch = require('node-fetch');
-const cron = require('node-cron');
 const jwt = require("jsonwebtoken");
 const authenticateToken = require("./authMiddleware");
+const generateToken = require("./generateToken");
 const { PrismaClient } = require('@prisma/client');
 
 
@@ -39,11 +39,7 @@ app.post('/api/login', (req, res) => {
         return res.status(401).json({ error: "Invalid credentials" });
     }
 
-    const token = jwt.sign(
-        { userId: mockUser.id, username: mockUser.username },
-        process.env.JWT_SECRET,
-        { expiresIn: "1h" }
-    )
+    const token = generateToken(mockUser);
 
     res.json({ token });
 });

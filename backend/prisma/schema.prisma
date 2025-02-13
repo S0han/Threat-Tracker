@@ -14,3 +14,9 @@ model Threat {
   threat_type String
   date_added DateTime
 }
+
+model User {
+  id       Int    @id @default(autoincrement())
+  username String @unique
+  password String
+}

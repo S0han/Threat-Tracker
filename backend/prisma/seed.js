@@ -1,5 +1,6 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
+const bcrypt = require('bcrypt');
 
 async function main() {
     await prisma.threat.createMany({
@@ -9,6 +10,15 @@ async function main() {
         ],
     });
     console.log('Database seeded!');
+
+    const hashedPassword = await bcrypt.hash('password123', 10);
+    await prisma.user.create({
+        data: {
+            username: 'admin',
+            password: hashedPassword
+        }
+    });
+    console.log('User seeded!');
 }
 
 main().catch(e => console.error(e)).finally(() => prisma.$disconnect());
