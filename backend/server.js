@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const prisma = require('./config/db');
 const authRoutes = require("./routes/auth");
+const threatRoutes = require("./routes/threats");
 
 const app = express();
 const PORT = 3001;
@@ -10,27 +11,10 @@ app.use(cors());
 app.use(express.json());
 
 app.use('/api/login', authRoutes);
+app.use('/api/threats', threatRoutes);
 
 app.get('/', (req, res) => {
     res.send("Main Page");
-});
-
-app.get('/api/threats', async (req, res) => {
-    try {
-        const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 5;
-
-        const threats = await prisma.threat.findMany({
-            skip: (page - 1) * limit,
-            take: limit,
-            orderBy: { date_added: 'desc' }
-        });
-
-        res.json({ page, limit, threats });
-    } catch (error) {
-        console.error(error.message);
-        res.status(500).json({ error: "Internal Server Error" });
-    }
 });
 
 app.get('/api/fetch-threats', async (req, res) => {
