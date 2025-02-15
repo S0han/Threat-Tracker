@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const { redisClient } = require("./server");
+const { redisClient } = require("../config/redis");
 
 function authMiddleware(req, res, next) {
     const token = req.header("Authorization");
