@@ -1,6 +1,5 @@
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
-const bcrypt = require('bcrypt');
+const prisma = require('../config/db');
+const argon2 = require('argon2');
 
 async function main() {
     await prisma.threat.createMany({
@@ -11,7 +10,7 @@ async function main() {
     });
     console.log('Database seeded!');
 
-    const hashedPassword = await bcrypt.hash('password123', 10);
+    const hashedPassword = await argon2.hash('password123');
     await prisma.user.create({
         data: {
             username: 'admin',

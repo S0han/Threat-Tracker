@@ -1,8 +1,9 @@
 const express = require("express");
 const cors = require("cors");
-const fetch = require('node-fetch');
-const bcrypt = require('bcrypt');
-const generateToken = require("./generateToken");
+const argon2 = require('argon2');
+const generateToken = require("./utils/generateToken");
+const prisma = require('./config/db');
+const { redisClient } = require('./config/redis');
 
 const app = express();
 const PORT = 3001;
@@ -25,7 +26,7 @@ app.post('/api/login', async (req, res) => {
         return res.status(401).json({ error: "Invalid credentials" });
     }
 
-    const passwordMatch = await bcrypt.compare(password, user.password);
+    const passwordMatch = await argon2.verify(user.password, password);
     if (!passwordMatch) {
         return res.status(401).json({ error: "Invalid credentials" });
     }
