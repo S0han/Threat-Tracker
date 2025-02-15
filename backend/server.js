@@ -1,9 +1,7 @@
 const express = require("express");
 const cors = require("cors");
-const argon2 = require('argon2');
-const generateToken = require("./utils/generateToken");
 const prisma = require('./config/db');
-const { redisClient } = require('./config/redis');
+const authRoutes = require("./routes/auth");
 
 const app = express();
 const PORT = 3001;
@@ -11,30 +9,10 @@ const PORT = 3001;
 app.use(cors());
 app.use(express.json());
 
+app.use('/api/login', authRoutes);
+
 app.get('/', (req, res) => {
     res.send("Main Page");
-});
-
-app.post('/api/login', async (req, res) => {
-    const { username, password } = req.body;
-
-    const user = await prisma.user.findUnique({
-        where: { username },
-    });
-
-    if (!user) {
-        return res.status(401).json({ error: "Invalid credentials" });
-    }
-
-    const passwordMatch = await argon2.verify(user.password, password);
-    if (!passwordMatch) {
-        return res.status(401).json({ error: "Invalid credentials" });
-    }
-
-    const token = generateToken(user);
-    await redisClient.setEx(`auth-token:${user.id}`, 3600, token);
-
-    res.json({ token });
 });
 
 app.get('/api/threats', async (req, res) => {
